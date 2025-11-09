@@ -1,74 +1,188 @@
 ---
-description: 可选的自动Git提交推送机制 - 任务完成后使用
+description: 可选的自动Git提交推送机制 - 任务完成后使用MCP工具
 globs: 
 alwaysApply: false
 ---
 
-# 🚀 自动Git提交推送
+# 🚀 自动Git提交推送（使用MCP工具）
 
-> ⚠️ 此规则按需使用。当任务完成需要推送时，可参考此规则。
+> ⚠️ 此规则按需使用。当任务完成需要推送时，参考此规则。
 
-## 快速使用
+## ✨ 新方法：直接使用MCP工具
 
-当完成一个任务并准备推送时：
+**重要**：不再使用Node.js脚本（会导致terminal卡住），改为直接使用Git MCP和GitHub MCP工具。
 
-```bash
-node /home/averyubuntu/projects/utils/auto-git-commit.js \
-  --message "用户原始消息" \
-  --summary "AI处理概括"
+## 📋 标准工作流
+
+当完成任务需要推送时，按以下顺序使用MCP工具：
+
+### 1. 检查状态
+```javascript
+cvcV5flJSjZ8qIXrpKYFEk0mcp0git_status({
+  repo_path: "/home/averyubuntu/projects"
+})
 ```
 
-## 工作原理
+### 2. 添加文件
+```javascript
+cvcV5flJSjZ8qIXrpKYFEk0mcp0git_add({
+  repo_path: "/home/averyubuntu/projects",
+  files: ["."]  // 添加所有文件
+})
+```
 
-工具自动执行：
-1. ✅ 检测文件变更
-2. ✅ 生成包含用户消息、处理概括、文件列表的详细提交
-3. ✅ 自动推送到GitHub
-4. ✅ **防止terminal卡住**（确保命令总有输出）
+### 3. 提交更改
+```javascript
+cvcV5flJSjZ8qIXrpKYFEk0mcp0git_commit({
+  repo_path: "/home/averyubuntu/projects",
+  message: `任务完成: [概括]
 
-## 何时使用
+用户消息:
+[用户原始消息]
 
+处理概括:
+[AI处理概括]
+
+文件变更:
+- [列出主要变更文件]
+
+完成时间: ${new Date().toISOString()}`
+})
+```
+
+### 4. 推送到GitHub
+```bash
+# 推送仍需使用execute_command（Git MCP暂不支持push）
+execute_command("cd /home/averyubuntu/projects && git push origin main")
+```
+
+## 🎯 完整示例
+
+```javascript
+// 步骤1: 检查状态
+await cvcV5flJSjZ8qIXrpKYFEk0mcp0git_status({
+  repo_path: "/home/averyubuntu/projects"
+});
+
+// 步骤2: 查看变更
+await cvcV5flJSjZ8qIXrpKYFEk0mcp0git_diff_unstaged({
+  repo_path: "/home/averyubuntu/projects"
+});
+
+// 步骤3: 添加文件
+await cvcV5flJSjZ8qIXrpKYFEk0mcp0git_add({
+  repo_path: "/home/averyubuntu/projects",
+  files: ["."]
+});
+
+// 步骤4: 提交
+await cvcV5flJSjZ8qIXrpKYFEk0mcp0git_commit({
+  repo_path: "/home/averyubuntu/projects",
+  message: "任务完成: 添加新功能\n\n用户消息:\n增加用户认证功能\n\n处理概括:\n实现了JWT认证和权限管理"
+});
+
+// 步骤5: 推送
+await execute_command("cd /home/averyubuntu/projects && git push origin main");
+```
+
+## 💡 使用提示
+
+### 何时使用
 - ✅ 完成重要功能开发
 - ✅ 完成文档更新
 - ✅ 完成配置修改
 - ❌ 不建议用于临时测试
 
-## 提示词建议
+### 提示词建议
 
-完成任务后，可以说：
+完成任务后，告诉AI：
 
-> "任务完成了，帮我用auto-git-commit推送一下"
+> "任务完成了，使用Git MCP工具提交并推送"
 
-或
+或简单说：
 
-> "update memory files" （这会提醒更新文档，然后可以推送）
+> "commit and push"
 
-## 工具位置
+## 🔧 可用的Git MCP工具
 
-- **工具**：`/home/averyubuntu/projects/utils/auto-git-commit.js`
-- **文档**：`/home/averyubuntu/projects/utils/README.md`
-- **日志**：`/home/averyubuntu/projects/utils/auto-commit-log.txt`
+```javascript
+// 状态检查
+git_status({ repo_path })
+git_diff_unstaged({ repo_path })
+git_diff_staged({ repo_path })
 
-## 注意事项
+// 文件操作
+git_add({ repo_path, files })
+git_reset({ repo_path })
 
-1. **不要过度使用** - 保持提交有意义
-2. **检查变更** - 确认要提交的文件正确
-3. **简洁消息** - summary保持在1-2句话
+// 提交操作
+git_commit({ repo_path, message })
+git_log({ repo_path, max_count })
+git_show({ repo_path, revision })
 
-## 示例
-
-```bash
-# 示例1：添加新功能
-node /home/averyubuntu/projects/utils/auto-git-commit.js \
-  --message "增加用户认证功能" \
-  --summary "实现了JWT认证和权限管理"
-
-# 示例2：修复bug
-node /home/averyubuntu/projects/utils/auto-git-commit.js \
-  --message "修复登录问题" \
-  --summary "解决了session过期导致的登录失败"
+// 分支操作
+git_branch({ repo_path, branch_type })
+git_create_branch({ repo_path, branch_name })
+git_checkout({ repo_path, branch_name })
 ```
+
+## 🚫 废弃的方法
+
+❌ **不再使用**：
+```bash
+# 旧方法（会导致pending）
+node /home/averyubuntu/projects/utils/auto-git-commit.js \
+  --message "..." \
+  --summary "..."
+```
+
+**原因**：使用`execSync`会导致terminal卡住，任务无法完成。
+
+## ⚙️ GitHub MCP工具（可选）
+
+如果需要创建Issue、PR等GitHub操作：
+
+```javascript
+// 创建Issue
+c9c-82TuNAN51W1dHi5w5B0mcp0create_issue({
+  owner: "laiyinyizao007",
+  repo: "averivendell-others",
+  title: "任务完成通知",
+  body: "详细描述..."
+})
+
+// 创建PR
+c9c-82TuNAN51W1dHi5w5B0mcp0create_pull_request({
+  owner: "laiyinyizao007",
+  repo: "averivendell-others",
+  title: "Feature: ...",
+  head: "feature-branch",
+  base: "main",
+  body: "PR描述..."
+})
+```
+
+## 📝 注意事项
+
+1. **MCP工具优先**：优先使用Git MCP工具，避免`execute_command`
+2. **推送例外**：`git push`暂时仍需`execute_command`（Git MCP不支持）
+3. **提交消息**：保持简洁明了，包含必要的上下文
+4. **检查变更**：提交前使用`git_diff_unstaged`查看变更
+
+## 🔄 迁移说明
+
+从旧的`auto-git-commit.js`迁移到MCP工具：
+
+| 旧方法 | 新方法（MCP） |
+|--------|--------------|
+| `execSync('git status')` | `git_status()` |
+| `execSync('git add -A')` | `git_add({ files: ["."] })` |
+| `execSync('git commit -m "..."')` | `git_commit({ message: "..." })` |
+| `execSync('git push')` | `execute_command("git push")` |
 
 ---
 
-**设计理念**：轻量、可选、不干扰正常工作流
+**设计理念**：使用MCP工具，避免terminal卡住，确保任务能够正常完成。
+
+**最后更新**: 2025-11-09  
+**更新原因**: 改用Git MCP工具替代execSync，解决pending问题

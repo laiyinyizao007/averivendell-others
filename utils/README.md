@@ -24,29 +24,72 @@ node /home/averyubuntu/projects/utils/git-auto-manager.js help
 - ✅ 智能提交和推送
 - ✅ 详细的执行报告
 
-### 2. auto-git-commit.js - 任务完成自动提交工具
+### 2. 自动Git提交推送 - 使用MCP工具（推荐）⭐
+
+> ⚠️ **重要更新**：不再使用`auto-git-commit.js`脚本（会导致terminal卡住）。
+> 改为直接使用Git MCP和GitHub MCP工具。
+
+**新方法**：在Cline中直接使用MCP工具链
+
+**使用方法**：
+```javascript
+// 1. 检查状态
+cvcV5flJSjZ8qIXrpKYFEk0mcp0git_status({ 
+  repo_path: "/home/averyubuntu/projects" 
+})
+
+// 2. 添加文件
+cvcV5flJSjZ8qIXrpKYFEk0mcp0git_add({ 
+  repo_path: "/home/averyubuntu/projects",
+  files: ["."] 
+})
+
+// 3. 提交
+cvcV5flJSjZ8qIXrpKYFEk0mcp0git_commit({ 
+  repo_path: "/home/averyubuntu/projects",
+  message: "任务完成: [概括]\n\n用户消息:\n[原始消息]\n\n处理概括:\n[AI概括]"
+})
+
+// 4. 推送（暂时仍需execute_command）
+execute_command("cd /home/averyubuntu/projects && git push origin main")
+```
+
+**优势**：
+- ✅ 不会导致terminal卡住
+- ✅ 任务能够正常完成
+- ✅ MCP工具自动批准，无需交互
+- ✅ 更好的错误处理
+- ✅ 类型安全的参数
+
+**详细文档**：参见 `.clinerules/auto-git-push.mdc`
+
+---
+
+### 2.1. auto-git-commit.js（已废弃）❌
+
+> ⚠️ **已废弃**：此脚本使用`execSync`会导致任务pending，不再推荐使用。
+
+<details>
+<summary>点击查看旧方法（仅供参考）</summary>
 
 **功能**：任务完成后自动记录用户消息、处理概括和文件变更，然后推送到GitHub
 
 **使用方法**：
 ```bash
-# 基本用法
+# ❌ 不推荐使用（会卡住）
 node /home/averyubuntu/projects/utils/auto-git-commit.js \
   --message "用户原始消息" \
   --summary "AI处理概括"
-
-# 示例
-node /home/averyubuntu/projects/utils/auto-git-commit.js \
-  --message "增加自动git的机制" \
-  --summary "创建了自动Git管理工具集，包括批量推送和任务完成自动提交功能"
 ```
 
-**特点**：
-- ✅ 捕获用户消息原文
-- ✅ 生成处理概括
-- ✅ 记录文件变更
-- ✅ 自动生成详细提交消息
-- ✅ **解决terminal卡住问题**（通过确保命令总有输出）
+**问题**：
+- ❌ 使用`execSync`导致terminal卡住
+- ❌ 任务无法complete，一直pending
+- ❌ 需要手动中断
+
+**解决方案**：使用上面的MCP工具方法。
+
+</details>
 
 **提交消息格式**：
 ```

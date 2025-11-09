@@ -1,11 +1,29 @@
 #!/usr/bin/env node
 
 /**
- * 自动Git提交推送工具
+ * ⚠️ 已废弃 - DEPRECATED ⚠️
+ * 
+ * 此脚本已被废弃，不再推荐使用。
+ * 
+ * 原因：使用 execSync 会导致 terminal 卡住，任务无法 complete，一直 pending。
+ * 
+ * 替代方案：直接在 Cline 中使用 Git MCP 和 GitHub MCP 工具
+ * 详见：/home/averyubuntu/projects/.clinerules/auto-git-push.mdc
+ * 
+ * ========================================
+ * 
+ * 自动Git提交推送工具（已废弃）
  * 功能：任务完成后自动记录用户消息、处理概括和文件变更，然后推送到GitHub
  * 
- * 使用方法：
+ * 使用方法（不再推荐）：
  * node auto-git-commit.js --message "用户原始消息" --summary "AI处理概括"
+ * 
+ * 新方法（推荐）：
+ * 使用 Git MCP 工具：
+ * - cvcV5flJSjZ8qIXrpKYFEk0mcp0git_status()
+ * - cvcV5flJSjZ8qIXrpKYFEk0mcp0git_add()
+ * - cvcV5flJSjZ8qIXrpKYFEk0mcp0git_commit()
+ * - execute_command("git push origin main")
  */
 
 const { execSync } = require('child_process');
