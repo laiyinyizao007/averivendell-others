@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中文实时反馈测试</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', 'SimHei', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            color: #666;
+            font-size: 1.2rem;
+            margin: 1rem 0;
+        }
+        .input-group {
+            margin: 1.5rem 0;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #555;
+        }
+        textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+        }
+        .feedback {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #777;
+            transition: all 0.3s ease;
+        }
+        .character-count {
+            text-align: right;
+        }
+        .character-count.warning {
+            color: #ff9800;
+        }
+        .character-count.error {
+            color: #f44336;
+        }
+        .validation-message {
+            height: 1.2rem;
+            margin-top: 0.5rem;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 2rem;
+            padding: 1rem;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            display: none;
+        }
+        .time {
+            font-size: 0.9rem;
+            color: #999;
+            margin-top: 2rem;
+        }
+        .emoji-feedback {
+            font-size: 1.5rem;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>中文实时反馈测试</h1>
+        <p>请在下方输入框中输入中文内容，系统将实时提供反馈。</p>
+        
+        <div class="input-group">
+            <label for="user-input">输入内容：</label>
+            <textarea id="user-input" placeholder="请在此处输入中文内容..."></textarea>
+            <div class="feedback">
+                <div id="validation-message" class="validation-message"></div>
+                <div id="character-count" class="character-count">0 个字符</div>
+            </div>
+            <div id="emoji-feedback" class="emoji-feedback"></div>
+        </div>
+        
+        <button id="submit-btn" disabled>提交内容</button>
+        
+        <div id="result" class="result">
+            <h3>提交结果</h3>
+            <p id="result-content"></p>
+            <p id="result-analysis"></p>
+        </div>
+        
+        <div class="time">
+            <p>当前时间：<span id="current-time"></span></p>
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const userInput = document.getElementById('user-input');
+        const characterCount = document.getElementById('character-count');
+        const validationMessage = document.getElementById('validation-message');
+        const emojiFeedback = document.getElementById('emoji-feedback');
+        const submitBtn = document.getElementById('submit-btn');
+        const result = document.getElementById('result');
+        const resultContent = document.getElementById('result-content');
+        const resultAnalysis = document.getElementById('result-analysis');
+        
+        // 实时字符计数和验证
+        userInput.addEventListener('input', function() {
+            const text = this.value;
+            const count = text.length;
+            
+            // 更新字符计数
+            characterCount.textContent = `${count} 个字符`;
+            
+            // 根据字符数量更改样式
+            if (count > 100) {
+                characterCount.className = 'character-count error';
+            } else if (count > 80) {
+                characterCount.className = 'character-count warning';
+            } else {
+                characterCount.className = 'character-count';
+            }
+            
+            // 验证是否包含中文
+            const hasChinese = /[\u4e00-\u9fa5]/.test(text);
+            
+            // 实时验证反馈
+            if (count === 0) {
+                validationMessage.textContent = '';
+                emojiFeedback.textContent = '';
+                submitBtn.disabled = true;
+            } else if (!hasChinese) {
+                validationMessage.textContent = '请输入中文内容';
+                validationMessage.style.color = '#f44336';
+                emojiFeedback.textContent = '😕';
+                submitBtn.disabled = true;
+            } else if (count < 5) {
+                validationMessage.textContent = '内容太短，请至少输入5个字符';
+                validationMessage.style.color = '#ff9800';
+                emojiFeedback.textContent = '🤔';
+                submitBtn.disabled = true;
+            } else if (count > 100) {
+                validationMessage.textContent = '内容过长，请不要超过100个字符';
+                validationMessage.style.color = '#f44336';
+                emojiFeedback.textContent = '😰';
+                submitBtn.disabled = true;
+            } else {
+                validationMessage.textContent = '内容有效';
+                validationMessage.style.color = '#4CAF50';
+                
+                // 根据内容长度提供不同的表情反馈
+                if (count >= 5 && count <= 20) {
+                    emojiFeedback.textContent = '🙂';
+                } else if (count > 20 && count <= 50) {
+                    emojiFeedback.textContent = '😊';
+                } else {
+                    emojiFeedback.textContent = '😄';
+                }
+                
+                submitBtn.disabled = false;
+            }
+        });
+        
+        // 提交按钮点击事件
+        submitBtn.addEventListener('click', function() {
+            const text = userInput.value;
+            
+            // 显示结果区域
+            result.style.display = 'block';
+            
+            // 显示提交的内容
+            resultContent.textContent = `您提交的内容：${text}`;
+            
+            // 简单分析内容
+            const wordCount = text.length;
+            const punctuationCount = (text.match(/[，。！？；：""''（）【】《》]/g) || []).length;
+            
+            resultAnalysis.innerHTML = `
+                <strong>内容分析：</strong><br>
+                - 字符总数：${wordCount} 个<br>
+                - 标点符号：${punctuationCount} 个<br>
+                - 提交时间：${new Date().toLocaleTimeString('zh-CN')}
+            `;
+            
+            // 清空输入框并重置状态
+            userInput.value = '';
+            characterCount.textContent = '0 个字符';
+            characterCount.className = 'character-count';
+            validationMessage.textContent = '';
+            emojiFeedback.textContent = '';
+            submitBtn.disabled = true;
+        });
+        
+        // 显示当前时间
+        function updateTime() {
+            const now = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                hour12: false
+            };
+            document.getElementById('current-time').textContent = now.toLocaleDateString('zh-CN', options);
+        }
+        
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+</body>
+</html>

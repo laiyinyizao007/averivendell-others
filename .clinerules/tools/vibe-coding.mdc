@@ -1,0 +1,575 @@
+---
+description: Vibe Coding - Git worktree 并行开发工具详细文档
+globs: 
+alwaysApply: false
+---
+
+# Vibe Coding - Git Worktree 并行开发工具
+
+> ⚠️ 本文档按需加载。快速参考请查看 @tools/_registry.mdc
+
+## 📋 概述
+
+Vibe Coding 是一个基于 `git worktree` 的并行开发工具，专为 AI-人类协作设计，通过模块化的方式实现真正的并行开发，每个模块在独立的工作树中开发，避免全局污染。
+
+**项目位置**: `/home/averyubuntu/projects/vibe-coding`
+
+**核心理念**: Vibe Coding = 拆分 + 并行 + 沙盒 + AI + 最终整合
+
+---
+
+## 🏗️ 系统架构
+
+### 核心组件
+
+```
+┌─────────────────────────────────────┐
+│      WorktreeManager                │
+│   (工作树管理、创建、删除)           │
+└──────────────┬──────────────────────┘
+               │
+┌──────────────▼──────────────────────┐
+│     BranchCoordinator               │
+│   (分支协调、依赖分析、合并管理)     │
+└──────────────┬──────────────────────┘
+               │
+┌──────────────▼──────────────────────┐
+│      ModuleDetector                 │
+│   (模块推断、边界验证、清晰度检查)   │
+└─────────────────────────────────────┘
+```
+
+### 组件说明
+
+#### 1. WorktreeManager (工作树管理器)
+**文件**: `src/worktree-manager.js`
+
+**职责**:
+- 工作树的创建、列表、删除
+- 项目配置管理 (`.vibe-config.json`)
+- Git 仓库验证
+- 工作树状态跟踪
+
+**主要方法**:
+```javascript
+class WorktreeManager {
+  async isGitRepository()           // 检查是否为 Git 仓库
+  async initProject(modules, base)  // 初始化项目
+  async createModuleWorktree(name)  // 创建模块工作树
+  async listWorktrees()             // 列出所有工作树
+  async cleanupWorktree(name)       // 删除工作树
+  async pruneWorktrees()            // 清理过期信息
+  async getStatus()                 // 获取状态概览
+}
+```
+
+#### 2. BranchCoordinator (分支协调器)
+**文件**: `src/branch-coordinator.js`
+
+**职责**:
+- 分支依赖关系检测
+- 合并冲突检测
+- 合并顺序建议
+- 智能合并执行
+
+**主要方法**:
+```javascript
+class BranchCoordinator {
+  async detectDependencies(branches)      // 检测依赖关系
+  async suggestMergeOrder(branches)       // 建议合并顺序
+  async checkConflicts(source, target)    // 检查冲突
+  async checkAllMerges(branches, target)  // 批量检查
+  async smartMerge(source, target, opts)  // 智能合并
+  async getBranchStats(branch)            // 获取统计信息
+}
+```
+
+#### 3. ModuleDetector (模块检测器)
+**文件**: `src/module-detector.js`
+
+**职责**:
+- 自动推断项目模块
+- 验证模块边界
+- 分析模块依赖
+- 评估模块清晰度
+
+**主要方法**:
+```javascript
+class ModuleDetector {
+  async inferModules()                        // 推断模块
+  async validateModuleBoundaries(modules)     // 验证边界
+  async analyzeModuleDependencies(module)     // 分析依赖
+  async suggestModuleSplit(moduleName)        // 建议拆分
+}
+```
+
+---
+
+## 🎯 使用场景
+
+### 场景 1: 模块化开发（推荐）
+
+**适用于**: 大型项目需要同时开发多个独立模块
+
+```bash
+# 1. 自动检测项目模块
+vibe init --infer
+
+# 2. 为每个模块创建独立工作树
+vibe create auth
+vibe create api  
+vibe create ui
+
+# 3. 在不同终端并行开发
+# Terminal 1: AI 开发 auth
+cd ../worktrees/auth
+
+# Terminal 2: 人类开发 api
+cd ../worktrees/api
+
+# 4. 完成后按顺序合并
+vibe suggest-order
+vibe merge auth
+vibe merge api
+vibe merge ui
+```
+
+### 场景 2: 大规模重构
+
+**适用于**: 需要大范围修改但不想影响主分支
+
+```bash
+# 创建重构工作树
+vibe create refactor -b refactor/architecture
+
+# 在工作树中进行重构
+cd ../worktrees/refactor
+# ... 大胆重构
+
+# 验证完成后合并
+cd $PROJECT_DIR
+vibe check-merge refactor
+vibe merge refactor --squash
+```
+
+### 场景 3: 特性隔离开发
+
+**适用于**: 多个实验性特性同时开发
+
+```bash
+# 创建多个特性工作树
+vibe create feature-a -b feat/experimental-a
+vibe create feature-b -b feat/experimental-b
+
+# 独立开发和测试
+# 成功的特性合并，失败的直接删除
+vibe merge feature-a
+vibe remove feature-b
+```
+
+---
+
+## 📖 命令参考
+
+### 核心命令
+
+#### `vibe init` - 初始化项目
+
+```bash
+# 自动检测模块
+vibe init --infer
+
+# 手动指定模块
+vibe init --modules "auth,api,ui"
+
+# 指定基础分支
+vibe init --modules "auth,api" --base develop
+```
+
+#### `vibe create <module>` - 创建工作树
+
+```bash
+vibe create auth                  # 使用默认分支名 feat/auth
+vibe create auth -b feature/auth  # 自定义分支名
+```
+
+#### `vibe list` - 列出工作树
+
+```bash
+vibe list  # 或 vibe ls
+```
+
+#### `vibe status` - 查看状态
+
+```bash
+vibe status  # 显示项目状态概览
+```
+
+#### `vibe merge <module>` - 合并模块
+
+```bash
+vibe merge auth                # 合并到基础分支
+vibe merge auth --target main  # 指定目标分支
+vibe merge auth --dry-run      # 预览合并
+vibe merge auth --squash       # 压缩提交
+```
+
+#### `vibe remove <module>` - 删除工作树
+
+```bash
+vibe remove auth         # 删除工作树
+vibe remove auth --force # 强制删除（有未提交更改时）
+```
+
+### 高级命令
+
+#### `vibe check-merge` - 检查合并冲突
+
+```bash
+vibe check-merge              # 检查所有模块
+vibe check-merge auth api     # 检查特定模块
+vibe check-merge --target dev # 指定目标分支
+```
+
+#### `vibe suggest-order` - 建议合并顺序
+
+```bash
+vibe suggest-order  # 基于依赖关系推荐顺序
+```
+
+#### `vibe infer-modules` - 推断模块结构
+
+```bash
+vibe infer-modules  # 分析项目结构并显示模块
+```
+
+#### `vibe validate` - 验证模块边界
+
+```bash
+vibe validate  # 检查模块清晰度和耦合度
+```
+
+#### `vibe prune` - 清理过期信息
+
+```bash
+vibe prune  # 清理不存在的工作树引用
+```
+
+---
+
+## 💡 最佳实践
+
+### 1. 项目初始化
+
+```bash
+# 步骤1: 在主项目完成架构设计
+cd my-project
+# 设计模块边界、定义接口
+
+# 步骤2: 推断并初始化模块
+vibe init --infer
+# 检查 .vibe-config.json，确认模块划分
+
+# 步骤3: 创建工作树
+vibe create module1
+vibe create module2
+```
+
+### 2. 并行开发工作流
+
+```bash
+# AI 实例 1: 处理 auth 模块
+cd ../worktrees/auth
+# 专注 auth 实现，上下文仅限于 auth
+
+# AI 实例 2: 处理 api 模块  
+cd ../worktrees/api
+# 专注 api 实现，不会干扰 auth
+
+# 人类开发者: 处理 ui 模块
+cd ../worktrees/ui
+# 并行开发 UI 组件
+```
+
+### 3. 合并策略
+
+```bash
+# 1. 先检查冲突
+vibe check-merge
+
+# 2. 获取推荐顺序（基于依赖）
+vibe suggest-order
+
+# 3. 按顺序合并
+vibe merge auth
+vibe merge api  # api 可能依赖 auth
+vibe merge ui   # ui 依赖 auth 和 api
+
+# 4. 清理工作树
+vibe remove auth
+vibe remove api
+vibe remove ui
+```
+
+### 4. 模块设计原则
+
+- **高内聚**: 模块内部功能紧密相关
+- **低耦合**: 模块间依赖尽量少
+- **清晰接口**: 每个模块有明确的 index.js 导出
+- **独立可测**: 模块可以独立编译和测试
+
+---
+
+## 🔧 配置文件
+
+### `.vibe-config.json`
+
+项目初始化后会创建此配置文件：
+
+```json
+{
+  "baseBranch": "main",
+  "modules": [
+    {
+      "name": "auth",
+      "branch": "feat/auth",
+      "path": "../worktrees/auth",
+      "created": true,
+      "createdAt": "2025-01-07T12:00:00.000Z"
+    },
+    {
+      "name": "api",
+      "branch": "feat/api",
+      "path": "../worktrees/api",
+      "created": false
+    }
+  ],
+  "createdAt": "2025-01-07T12:00:00.000Z"
+}
+```
+
+**字段说明**:
+- `baseBranch`: 基础分支，默认为 main
+- `modules`: 模块配置数组
+  - `name`: 模块名称
+  - `branch`: 对应的 Git 分支
+  - `path`: 工作树路径
+  - `created`: 是否已创建工作树
+  - `createdAt`: 创建时间
+
+---
+
+## 🤝 与 AI 协作
+
+### 优势
+
+1. **上下文隔离**: 每个 AI 实例只需关注一个模块
+2. **并行处理**: 多个 AI 可同时工作在不同模块
+3. **减少冲突**: 物理隔离避免意外修改
+4. **清晰边界**: 强制模块化，提高代码质量
+
+### AI 工作流
+
+```
+┌─────────────────┐
+│  Human: 设计架构 │
+│  定义模块边界    │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  vibe init      │
+│  创建配置        │
+└────────┬────────┘
+         │
+         ├──────────┬──────────┬──────────┐
+         ▼          ▼          ▼          ▼
+    ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐
+    │AI #1   │ │AI #2   │ │AI #3   │ │Human   │
+    │auth    │ │api     │ │ui      │ │docs    │
+    └────┬───┘ └────┬───┘ └────┬───┘ └────┬───┘
+         │          │          │          │
+         └──────────┴──────────┴──────────┘
+                     │
+                     ▼
+         ┌──────────────────────┐
+         │  vibe check-merge    │
+         │  vibe suggest-order  │
+         └──────────┬───────────┘
+                    │
+                    ▼
+         ┌──────────────────────┐
+         │  vibe merge (按顺序)  │
+         │  整合所有模块         │
+         └──────────────────────┘
+```
+
+---
+
+## 🔍 故障排查
+
+### 常见问题
+
+**Q: 提示 "Not a git repository"**
+```bash
+# 确保在 Git 仓库中使用
+git init
+git add .
+git commit -m "Initial commit"
+```
+
+**Q: 工作树创建失败**
+```bash
+# 检查是否已存在同名工作树或分支
+vibe list
+git branch -a
+
+# 清理过期信息
+vibe prune
+```
+
+**Q: 合并冲突**
+```bash
+# 先检查冲突
+vibe check-merge
+
+# 查看冲突详情
+vibe check-merge module-name
+
+# 手动解决冲突后继续
+git merge --continue
+```
+
+**Q: 模块划分不清晰**
+```bash
+# 验证模块边界
+vibe validate
+
+# 重新推断模块
+vibe infer-modules
+
+# 根据建议重新初始化
+vibe init --modules "new,module,list"
+```
+
+---
+
+## 🚀 与 Clinerules 集成
+
+### 在 PLAN MODE 中使用
+
+```markdown
+<MODULE PLANNING>
+- 使用 Vibe Coding 思维分解复杂项目
+- 运行 `vibe init --infer` 自动识别模块
+- 评估模块边界和依赖关系
+- 为每个模块创建独立的开发环境
+</MODULE PLANNING>
+```
+
+### 在 ACT MODE 中使用
+
+```markdown
+<PARALLEL IMPLEMENTATION>
+- 考虑为当前任务创建独立工作树
+- 使用 `vibe create [module]` 进入沙盒环境
+- 在工作树中实现功能，避免污染主项目
+- 完成后使用 `vibe merge` 整合到主分支
+</PARALLEL IMPLEMENTATION>
+```
+
+### 工作流集成
+
+```bash
+# 1. PLAN MODE: 设计模块
+# - 定义模块边界
+# - 确定依赖关系
+
+# 2. 初始化 Vibe Coding
+vibe init --infer
+
+# 3. ACT MODE: 并行实现
+vibe create module1
+vibe create module2
+
+# 4. 在工作树中开发
+cd ../worktrees/module1
+# ... 实现代码
+
+# 5. 测试和验证
+# 在工作树中独立测试
+
+# 6. 合并集成
+cd $PROJECT_DIR
+vibe check-merge
+vibe merge module1
+```
+
+---
+
+## 📚 相关文档
+
+- **快速参考**: @tools/_registry.mdc
+- **项目 README**: /home/averyubuntu/projects/vibe-coding/README.md
+- **手动测试指南**: /home/averyubuntu/projects/vibe-coding/tests/MANUAL_TEST_GUIDE.md
+- **Clinerules 集成**: /home/averyubuntu/projects/vibe-coding/docs/clinerules-integration.md
+
+---
+
+## 🧪 测试
+
+### 运行自动化测试
+
+```bash
+# 完整测试套件
+/home/averyubuntu/projects/vibe-coding/tests/run-all-tests.sh
+
+# 快速验证
+/home/averyubuntu/projects/vibe-coding/tests/quick-verify.sh
+```
+
+### 手动测试
+
+查看详细的手动测试指南：
+```bash
+cat /home/averyubuntu/projects/vibe-coding/tests/MANUAL_TEST_GUIDE.md
+```
+
+---
+
+## 💻 编程接口
+
+除了 CLI，也可以在代码中使用：
+
+```javascript
+const { WorktreeManager, BranchCoordinator, ModuleDetector } = 
+  require('/home/averyubuntu/projects/vibe-coding');
+
+// 管理工作树
+const manager = new WorktreeManager('/path/to/project');
+await manager.initProject(['auth', 'api', 'ui']);
+await manager.createModuleWorktree('auth');
+
+// 协调分支
+const coordinator = new BranchCoordinator('/path/to/project');
+const order = await coordinator.suggestMergeOrder(['feat/auth', 'feat/api']);
+
+// 检测模块
+const detector = new ModuleDetector('/path/to/project');
+const modules = await detector.inferModules();
+```
+
+---
+
+## 🎓 学习路径
+
+1. **入门**: 阅读 README，了解核心概念
+2. **实践**: 在测试项目中尝试基本命令
+3. **深入**: 查看手动测试指南，理解各种场景
+4. **集成**: 在实际项目中应用 Vibe Coding
+5. **优化**: 根据项目特点调整模块划分策略
+
+---
+
+**最后更新**: 2025-01-07
+**测试状态**: ✅ 所有测试通过 (16/16)

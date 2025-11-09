@@ -1,0 +1,49 @@
+# Exclude all sub-projects - they have their own repositories
+api-connection-tester/
+backup-manager/
+cline-context-optimizer/
+github-mcp-research/
+linux-learning-project/
+mcp-install/
+notion_AR_SecondBrain/
+notion-api-research/
+rules/
+rules_template_project/
+telegram-AIworkHorse/
+telegram-AnotherAvery_bot/
+telegram-botManagement/
+telegram-groupChat/
+vibe-coding/
+wsl-vscode-diagnostics/
+
+# Only track shared files and utilities
+!.clinerules/
+!.cursor/
+!config/
+!data/
+!docs/
+!src/
+!tasks/
+!test/
+!utils/
+
+# Node modules
+node_modules/
+
+# Log files
+*.log
+logs/
+
+# Environment files
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo

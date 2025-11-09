@@ -1,0 +1,189 @@
+---
+description: Project tools registry - lightweight index of available tools
+globs: 
+alwaysApply: true
+---
+
+# 🛠️ 项目工具注册表
+
+本注册表列出项目中可用的专用工具。保持轻量，仅提供快速参考。需要详细信息时，参考对应的详细文档。
+
+## 使用原则
+- ✅ 本文件始终加载（轻量级索引）
+- ⚠️ 详细文档按需加载（使用 @tools/[tool-name].mdc 引用）
+- 🎯 需要时才深入了解具体工具
+
+---
+
+## 1. Rules Engine - 代码规则管理系统
+
+**路径**: `/home/averyubuntu/projects/rules`  
+**类型**: Node.js工具  
+**用途**: 自动化代码规则验证、应用和管理
+
+### 快速调用
+```bash
+cd /home/averyubuntu/projects/rules
+node src/index.js [command]
+```
+
+### 常用命令
+```bash
+# 列出所有规则
+rules list
+
+# 验证规则配置
+rules validate
+
+# 应用规则到文件
+rules apply --path <path>
+
+# 启用/禁用规则
+rules enable <rule-id>
+rules disable <rule-id>
+```
+
+### 典型使用场景
+1. **代码提交前检查** → `rules validate --path src/`
+2. **格式化代码文件** → `rules apply --format --path src/`
+3. **查看当前规则** → `rules list --enabled`
+4. **添加新规则** → 在 `config/rules/` 目录创建JSON文件
+
+### 何时使用
+- ✅ 需要批量检查代码规范
+- ✅ 统一项目代码风格
+- ✅ 自动化格式化和验证
+- ✅ 团队协作时保持一致性
+
+### 核心能力
+- 规则管理（添加、删除、启用、禁用）
+- 规则验证（检查规则配置是否正确）
+- 规则执行（应用规则到文件）
+- 事件系统（规则加载、应用时的事件通知）
+
+### 📚 详细文档
+需要深入了解架构、API或高级用法时，参考：`@tools/rules-engine.mdc`
+
+---
+
+## 2. Vibe Coding - Git Worktree 并行开发工具
+
+**路径**: `/home/averyubuntu/projects/vibe-coding`  
+**类型**: Node.js CLI工具  
+**用途**: 基于 git worktree 的模块化并行开发，支持 AI-人类协作
+
+### 快速调用
+```bash
+cd /home/averyubuntu/projects/vibe-coding
+node src/cli.js [command]
+# 或者使用别名 vibe（需要 npm link）
+```
+
+### 常用命令
+```bash
+# 初始化项目（自动检测模块）
+vibe init --infer
+
+# 创建模块工作树
+vibe create <module-name>
+
+# 查看所有工作树
+vibe list
+
+# 检查合并冲突
+vibe check-merge
+
+# 建议合并顺序
+vibe suggest-order
+
+# 合并模块
+vibe merge <module-name>
+
+# 删除工作树
+vibe remove <module-name>
+```
+
+### 典型使用场景
+1. **模块化并行开发** → `vibe init --infer && vibe create auth && vibe create api`
+2. **独立特性开发** → `vibe create feature-x -b feat/experiment`
+3. **大规模重构** → `vibe create refactor -b refactor/arch`
+4. **合并前检查** → `vibe check-merge && vibe suggest-order`
+
+### 何时使用
+- ✅ 多个模块需要并行开发
+- ✅ AI 和人类需要同时工作在不同部分
+- ✅ 需要隔离的实验性开发
+- ✅ 大规模重构不想影响主分支
+- ✅ 希望强制模块化边界
+
+### 核心能力
+- 自动模块检测和推断
+- 独立工作树管理（物理隔离）
+- 分支依赖分析
+- 合并冲突预检测
+- 智能合并顺序建议
+- 模块边界验证
+
+### 🎯 与 Clinerules 集成
+**在 PLAN MODE 中**:
+```markdown
+<MODULE PLANNING>
+- 使用 vibe init --infer 识别模块
+- 评估模块边界和依赖
+</MODULE PLANNING>
+```
+
+**在 ACT MODE 中**:
+```markdown
+<PARALLEL IMPLEMENTATION>
+- 使用 vibe create [module] 进入沙盒
+- 完成后 vibe merge 整合
+</PARALLEL IMPLEMENTATION>
+```
+
+### 📚 详细文档
+需要深入了解架构、API或高级用法时，参考：`@tools/vibe-coding.mdc`
+
+### ✅ 测试状态
+所有核心功能已通过测试 (16/16) ✅
+
+---
+
+## 3. Docker工具（待添加）
+
+**说明**: 可以添加Docker相关工具的快速参考
+
+---
+
+## 🔧 添加新工具
+
+要添加新工具到注册表：
+
+1. 在本文件添加快速参考（保持简洁）
+2. 在 `tools/` 目录创建详细文档：`[tool-name].mdc`
+3. 设置详细文档为按需加载：`alwaysApply: false`
+
+**模板**：
+```markdown
+## [工具名称]
+
+**路径**: /path/to/tool
+**类型**: [Node.js/Python/Bash/...]
+**用途**: [简短描述]
+
+### 快速调用
+```bash
+[常用命令]
+```
+
+### 常用场景
+1. 场景1 → 命令
+2. 场景2 → 命令
+
+### 📚 详细文档
+参考：`@tools/[tool-name].mdc`
+```
+
+---
+
+**注意**: 保持此文件轻量（目标：<1000 tokens），详细内容放在各工具的专属文档中。

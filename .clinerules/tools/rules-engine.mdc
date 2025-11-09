@@ -1,0 +1,439 @@
+---
+description: Rules Engine detailed documentation - load only when needed
+globs: 
+alwaysApply: false
+---
+
+# Rules Engine - 详细文档
+
+> ⚠️ 本文档按需加载。快速参考请查看 @tools/_registry.mdc
+
+## 📋 概述
+
+Rules Engine 是一个基于 Node.js 的自动化规则管理系统，用于代码规范验证、格式化和自动化应用。
+
+**项目位置**: `/home/averyubuntu/projects/rules`
+
+---
+
+## 🏗️ 系统架构
+
+### 核心组件
+
+```
+┌─────────────────────────────────────┐
+│         Rule Manager                │
+│   (规则管理、加载、存储)             │
+└──────────────┬──────────────────────┘
+               │
+┌──────────────▼──────────────────────┐
+│        Rule Validator               │
+│   (规则配置验证、完整性检查)         │
+└──────────────┬──────────────────────┘
+               │
+┌──────────────▼──────────────────────┐
+│         Rule Engine                 │
+│   (规则执行、文件处理、应用逻辑)     │
+└─────────────────────────────────────┘
+```
+
+### 组件说明
+
+#### 1. RuleManager (规则管理器)
+**文件**: `src/rule-manager.js`
+
+**职责**:
+- 加载规则文件（从 `config/rules/` 目录）
+- 规则的增删改查操作
+- 规则状态管理（启用/禁用）
+- 事件发射（规则加载、添加、删除时）
+
+**主要方法**:
+```javascript
+class RuleManager extends EventEmitter {
+  loadRules()              // 从目录加载所有规则
+  addRule(rule)            // 添加新规则
+  removeRule(ruleId)       // 删除规则
+  getRule(ruleId)          // 获取单个规则
+  listRules(filter)        // 列出规则（可过滤）
+  enableRule(ruleId)       // 启用规则
+  disableRule(ruleId)      // 禁用规则
+  getRuleCount()           // 获取规则总数
+}
+```
+
+#### 2. RuleValidator (规则验证器)
+**文件**: `src/rule-validator.js`
+
+**职责**:
+- 验证规则配置的正确性
+- 检查必填字段
+- 验证字段格式和类型
+- 快速验证（quickValidate）
+
+**验证规则**:
+- ID格式验证
+- 优先级范围验证（1-10）
+- 条件对象验证
+- 动作对象验证
+
+#### 3. RuleEngine (规则引擎)
+**文件**: `src/rule-engine.js`
+
+**职责**:
+- 执行规则应用逻辑
+- 文件类型匹配
+- 批量文件处理
+- 规则执行结果反馈
+
+**处理流程**:
+1. 接收文件路径
+2. 匹配适用的规则
+3. 按优先级排序
+4. 执行规则动作
+5. 返回执行结果
+
+---
+
+## 📝 规则定义格式
+
+### 规则文件结构
+
+规则文件存储在 `config/rules/` 目录，使用 JSON 格式：
+
+```json
+{
+  "id": "unique-rule-id",
+  "name": "规则名称",
+  "description": "规则描述",
+  "priority": 5,
+  "enabled": true,
+  "conditions": {
+    "fileType": "javascript",
+    "pathPattern": "src/**/*.js",
+    "exclude": ["node_modules/**", "dist/**"]
+  },
+  "actions": {
+    "format": true,
+    "validate": true,
+    "autofix": true,
+    "linter": "eslint"
+  },
+  "config": {
+    "maxLineLength": 100,
+    "indentSize": 2,
+    "semicolons": true
+  }
+}
+```
+
+### 字段说明
+
+#### 元数据字段
+- **id** (必填): 规则唯一标识符
+- **name** (必填): 人类可读的规则名称
+- **description**: 规则描述
+- **priority** (1-10): 优先级，数字越大优先级越高
+- **enabled**: 是否启用该规则
+
+#### conditions (条件对象)
+定义规则何时触发：
+- **fileType**: 文件类型（如 "javascript", "python", "markdown"）
+- **pathPattern**: 文件路径模式（支持 glob 语法）
+- **exclude**: 排除的路径模式
+
+#### actions (动作对象)
+定义规则触发后的行为：
+- **format**: 是否格式化代码
+- **validate**: 是否验证代码
+- **autofix**: 是否自动修复问题
+- **linter**: 使用的linter工具
+
+#### config (配置对象)
+规则的具体配置参数，根据不同规则类型而异。
+
+---
+
+## 🔧 API 参考
+
+### 创建 RuleManager 实例
+
+```javascript
+const { createRuleManager } = require('./src/index.js');
+
+const ruleManager = createRuleManager({
+  rulesDirectory: './config/rules',  // 规则目录
+  autoLoad: true,                    // 自动加载规则
+  logger: console                    // 日志对象
+});
+```
+
+### 监听事件
+
+```javascript
+// 规则加载完成
+ruleManager.on('rulesLoaded', (count) => {
+  console.log(`已加载 ${count} 条规则`);
+});
+
+// 规则添加
+ruleManager.on('ruleAdded', (rule) => {
+  console.log(`添加规则: ${rule.name}`);
+});
+
+// 规则删除
+ruleManager.on('ruleRemoved', (ruleId) => {
+  console.log(`删除规则: ${ruleId}`);
+});
+
+// 错误处理
+ruleManager.on('error', (error) => {
+  console.error('规则管理器错误:', error);
+});
+```
+
+### 规则操作示例
+
+```javascript
+// 添加规则
+const newRule = {
+  id: 'my-rule',
+  name: '我的规则',
+  priority: 5,
+  enabled: true,
+  conditions: { fileType: 'javascript' },
+  actions: { format: true }
+};
+ruleManager.addRule(newRule);
+
+// 获取规则
+const rule = ruleManager.getRule('my-rule');
+
+// 列出所有启用的规则
+const enabledRules = ruleManager.listRules({ enabled: true });
+
+// 禁用规则
+ruleManager.disableRule('my-rule');
+
+// 删除规则
+ruleManager.removeRule('my-rule');
+```
+
+---
+
+## 💡 使用示例
+
+### 示例1: 代码提交前验证
+
+```bash
+#!/bin/bash
+# pre-commit hook
+
+cd /home/averyubuntu/projects/rules
+
+# 验证所有规则配置
+node src/index.js validate
+
+# 应用规则到暂存文件
+git diff --cached --name-only | while read file; do
+  node src/index.js apply --path "$file"
+done
+```
+
+### 示例2: 批量格式化项目
+
+```bash
+# 格式化所有 JavaScript 文件
+cd /home/averyubuntu/projects/rules
+node src/index.js apply --path "src/**/*.js" --format
+
+# 格式化特定目录
+node src/index.js apply --path "src/components/" --format --autofix
+```
+
+### 示例3: 在代码中使用
+
+```javascript
+const RuleEngine = require('./src/rule-engine.js');
+const RuleManager = require('./src/rule-manager.js');
+
+// 创建管理器和引擎
+const manager = new RuleManager({
+  rulesDirectory: './config/rules'
+});
+
+const engine = new RuleEngine(manager);
+
+// 应用规则到文件
+async function checkFile(filePath) {
+  const result = await engine.applyToFile(filePath, {
+    format: true,
+    validate: true
+  });
+  
+  console.log(`文件 ${filePath}:`);
+  console.log(`- 应用规则数: ${result.appliedRules}`);
+  console.log(`- 发现问题: ${result.issues}`);
+  console.log(`- 自动修复: ${result.fixed}`);
+}
+
+// 批量处理
+const files = ['src/index.js', 'src/app.js'];
+engine.applyToFiles(files).then(results => {
+  console.log('批量处理完成:', results);
+});
+```
+
+---
+
+## 🎯 最佳实践
+
+### 1. 规则优先级设计
+- **1-3**: 建议性规则（不阻塞提交）
+- **4-6**: 警告级规则（提示但允许）
+- **7-10**: 错误级规则（必须修复）
+
+### 2. 规则文件组织
+```
+config/rules/
+├── javascript/
+│   ├── format.json
+│   ├── lint.json
+│   └── security.json
+├── python/
+│   ├── pep8.json
+│   └── type-check.json
+└── general/
+    └── file-naming.json
+```
+
+### 3. 规则继承与覆盖
+基础规则 → 项目规则 → 本地规则
+
+### 4. 性能优化
+- 使用路径排除减少不必要的检查
+- 合理设置规则优先级
+- 启用缓存（如果支持）
+
+---
+
+## 🐛 故障排查
+
+### 常见问题
+
+**Q: 规则没有生效？**
+```bash
+# 1. 检查规则是否启用
+node src/index.js list --enabled
+
+# 2. 验证规则配置
+node src/index.js validate
+
+# 3. 检查文件路径是否匹配
+# 确认 pathPattern 和 exclude 配置
+```
+
+**Q: 规则加载失败？**
+```bash
+# 检查规则目录
+ls -la config/rules/
+
+# 验证 JSON 格式
+cat config/rules/my-rule.json | jq .
+```
+
+**Q: 性能问题？**
+- 减少规则数量
+- 优化路径匹配模式
+- 增加排除目录
+
+---
+
+## 🔄 集成到工作流
+
+### Git Hooks 集成
+
+创建 `.git/hooks/pre-commit`:
+```bash
+#!/bin/bash
+cd /home/averyubuntu/projects/rules
+node src/index.js validate --staged
+exit $?
+```
+
+### CI/CD 集成
+
+```yaml
+# .github/workflows/rules-check.yml
+name: Rules Check
+on: [push, pull_request]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run rules validation
+        run: |
+          cd /home/averyubuntu/projects/rules
+          node src/index.js validate --all
+```
+
+### IDE 集成
+
+VS Code settings.json:
+```json
+{
+  "emeraldwalk.runonsave": {
+    "commands": [
+      {
+        "match": ".*\\.(js|ts)$",
+        "cmd": "cd /home/averyubuntu/projects/rules && node src/index.js apply --path ${file}"
+      }
+    ]
+  }
+}
+```
+
+---
+
+## 📚 相关文档
+
+- **快速参考**: @tools/_registry.mdc
+- **项目README**: /home/averyubuntu/projects/rules/README.md
+- **使用指南**: /home/averyubuntu/projects/rules/docs/usage-guide.md
+- **API文档**: /home/averyubuntu/projects/rules/docs/api-reference.md
+- **规则定义**: /home/averyubuntu/projects/rules/docs/rules-definition.md
+
+---
+
+## 🚀 扩展开发
+
+### 添加自定义规则类型
+
+```javascript
+// 在 rule-engine.js 中扩展
+class CustomRuleEngine extends RuleEngine {
+  async executeCustomRule(rule, filePath, options) {
+    // 自定义规则逻辑
+  }
+}
+```
+
+### 添加新的文件类型支持
+
+```javascript
+// 在 rule-engine.js 的 getFileType 方法中添加
+getFileType(ext) {
+  const types = {
+    '.js': 'javascript',
+    '.py': 'python',
+    '.go': 'golang',  // 新增
+    // ...
+  };
+  return types[ext] || 'unknown';
+}
+```
+
+---
+
+**最后更新**: 2025-01-07
