@@ -2,6 +2,10 @@
 description: Project tools registry - lightweight index of available tools
 globs: 
 alwaysApply: true
+version: 1.0.0
+updated: 2025-11-09
+changelog: |
+  v1.0.0 (2025-11-09): Initial stable version - tools registry and quick reference
 ---
 
 # 🛠️ 项目工具注册表

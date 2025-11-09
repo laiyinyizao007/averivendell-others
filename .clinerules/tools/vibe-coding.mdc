@@ -2,6 +2,10 @@
 description: Vibe Coding - Git worktree 并行开发工具详细文档
 globs: 
 alwaysApply: false
+version: 1.0.0
+updated: 2025-11-09
+changelog: |
+  v1.0.0 (2025-11-09): Initial stable version - complete vibe coding documentation
 ---
 
 # Vibe Coding - Git Worktree 并行开发工具

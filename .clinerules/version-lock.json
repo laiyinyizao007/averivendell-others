@@ -1,0 +1,157 @@
+{
+  "version": "1.0.0",
+  "releaseDate": "2025-11-09",
+  "status": "stable",
+  "description": "Version lock file for all Cline rules, workflows, and documentation components",
+  "components": {
+    "cursor-rules": {
+      "version": "1.0.0",
+      "path": ".cursor/rules/",
+      "files": {
+        "memory.mdc": {
+          "version": "1.0.0",
+          "updated": "2025-11-09",
+          "alwaysApply": true,
+          "description": "Project context and memory files structure"
+        },
+        "plan.mdc": {
+          "version": "1.0.0",
+          "updated": "2025-11-09",
+          "alwaysApply": true,
+          "description": "PLAN MODE workflow and methodologies"
+        },
+        "implement.mdc": {
+          "version": "1.0.0",
+          "updated": "2025-11-09",
+          "alwaysApply": true,
+          "description": "ACT MODE implementation protocols"
+        },
+        "debug.mdc": {
+          "version": "1.0.0",
+          "updated": "2025-11-09",
+          "alwaysApply": false,
+          "description": "Debugging protocols and methodologies"
+        },
+        "rules.mdc": {
+          "version": "1.0.0",
+          "updated": "2025-11-09",
+          "alwaysApply": true,
+          "description": "Core rules and tool usage guidelines"
+        },
+        "lessons-learned.mdc": {
+          "version": "1.0.0",
+          "updated": "2025-11-09",
+          "alwaysApply": true,
+          "description": "Tool preferences and project intelligence"
+        },
+        "error-documentation.mdc": {
+          "version": "1.0.0",
+          "updated": "2025-11-09",
+          "alwaysApply": false,
+          "description": "Error documentation and solutions"
+        },
+        "architecture-understanding.mdc": {
+          "version": "1.0.0",
+          "updated": "2025-11-09",
+          "alwaysApply": false,
+          "description": "Architecture understanding protocols"
+        },
+        "directory-structure.mdc": {
+          "version": "1.0.0",
+          "updated": "2025-11-09",
+          "alwaysApply": false,
+          "description": "Project directory structure guidelines"
+        }
+      }
+    },
+    "clinerules-tools": {
+      "version": "1.0.0",
+      "path": ".clinerules/tools/",
+      "files": {
+        "_registry.mdc": {
+          "version": "1.0.0",
+          "updated": "2025-11-09",
+          "alwaysApply": true,
+          "description": "Project tools registry - lightweight index"
+        },
+        "rules-engine.mdc": {
+          "version": "1.0.0",
+          "updated": "2025-11-09",
+          "alwaysApply": false,
+          "description": "Rules Engine detailed documentation"
+        },
+        "vibe-coding.mdc": {
+          "version": "1.0.0",
+          "updated": "2025-11-09",
+          "alwaysApply": false,
+          "description": "Vibe Coding - Git worktree parallel development tool"
+        }
+      }
+    },
+    "workflows": {
+      "version": "1.0.0",
+      "path": "../Cline/Workflows/",
+      "files": {
+        "save.md": {
+          "version": "1.0.0",
+          "updated": "2025-11-09",
+          "description": "Save and commit workflow with Git MCP tools"
+        }
+      }
+    },
+    "documentation": {
+      "version": "1.0.0",
+      "path": "docs/guides/",
+      "files": {
+        "VERSION_MANAGEMENT.md": {
+          "version": "1.0.0",
+          "updated": "2025-11-09",
+          "description": "Version management documentation"
+        },
+        "CLINERULES_CONNECTION_MECHANISM.md": {
+          "version": "1.0.0",
+          "updated": "2025-11-09",
+          "description": "Clinerules connection mechanism guide"
+        },
+        "SYSTEM_OPTIMIZATION_PLAN.md": {
+          "version": "1.0.0",
+          "updated": "2025-11-09",
+          "description": "System optimization plan"
+        },
+        "WORKFLOWS_SETUP.md": {
+          "version": "1.0.0",
+          "updated": "2025-11-09",
+          "description": "Cline workflows setup guide"
+        }
+      }
+    }
+  },
+  "statistics": {
+    "totalComponents": 4,
+    "totalFiles": 17,
+    "cursorRules": 9,
+    "clineruleTools": 3,
+    "workflows": 1,
+    "documentation": 4
+  },
+  "changelog": {
+    "1.0.0": {
+      "date": "2025-11-09",
+      "changes": [
+        "Initial stable version baseline",
+        "Added version metadata to all .cursor/rules files (9 files)",
+        "Added version metadata to all .clinerules/tools files (3 files)",
+        "Added version metadata to all workflows (1 file)",
+        "Added version metadata to all system documentation (4 files)",
+        "Created VERSION_MANAGEMENT.md documentation",
+        "Created version-lock.json for version tracking"
+      ]
+    }
+  },
+  "metadata": {
+    "createdBy": "Cline AI Assistant",
+    "createdAt": "2025-11-09T12:46:00.000Z",
+    "lastModified": "2025-11-09T12:46:00.000Z",
+    "schemaVersion": "1.0.0"
+  }
+}

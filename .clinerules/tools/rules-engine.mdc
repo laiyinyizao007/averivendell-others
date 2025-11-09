@@ -2,6 +2,10 @@
 description: Rules Engine detailed documentation - load only when needed
 globs: 
 alwaysApply: false
+version: 1.0.0
+updated: 2025-11-09
+changelog: |
+  v1.0.0 (2025-11-09): Initial stable version - complete rules engine documentation
 ---
 
 # Rules Engine - 详细文档
