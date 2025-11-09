@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "releaseDate": "2025-11-09",
   "status": "stable",
   "description": "Version lock file for all Cline rules, workflows, and documentation components",
@@ -21,7 +21,7 @@
           "description": "PLAN MODE workflow and methodologies"
         },
         "implement.mdc": {
-          "version": "1.0.0",
+          "version": "1.1.0",
           "updated": "2025-11-09",
           "alwaysApply": true,
           "description": "ACT MODE implementation protocols"
@@ -93,7 +93,7 @@
       "path": "../Cline/Workflows/",
       "files": {
         "save.md": {
-          "version": "1.0.0",
+          "version": "1.1.0",
           "updated": "2025-11-09",
           "description": "Save and commit workflow with Git MCP tools"
         }
@@ -135,6 +135,18 @@
     "documentation": 4
   },
   "changelog": {
+    "1.1.0": {
+      "date": "2025-11-09",
+      "changes": [
+        "System optimization - Phase 1 基础整合",
+        "Created Global Rules directory structure (/home/averyubuntu/Cline/Rules/)",
+        "Added Rules-Workflows connection mechanism",
+        "Updated implement.mdc v1.1.0 - added reference to /save workflow",
+        "Updated save.md v1.1.0 - added reference to memory.mdc rules",
+        "Established bi-directional connection between Rules and Workflows",
+        "Updated version-lock.json to track v1.1.0 changes"
+      ]
+    },
     "1.0.0": {
       "date": "2025-11-09",
       "changes": [
