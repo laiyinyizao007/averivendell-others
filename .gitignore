@@ -4,7 +4,7 @@ backup-manager/
 cline-context-optimizer/
 github-mcp-research/
 linux-learning-project/
-mcp-install/
+# mcp-install/ - now tracked, but .env files excluded by rules below
 notion_AR_SecondBrain/
 notion-api-research/
 rules/
